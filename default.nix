@@ -7,10 +7,18 @@ stdenv.mkDerivation rec {
       name = "bitscope-dso_${version}";
       version = "2.8.FE22H";
     
-      src = fetchurl {
-        url = "http://bitscope.com/download/files/bitscope-dso_2.8.FE22H_i386.deb";
-        sha256 = "0d338g21rzknwgn5wannvkyy9aq37vlfqkppgjv3bkjqkxcyvv7a";
-      };
+      src =
+        if stdenv.system == "x86_64-linux" then
+          fetchurl {
+            url = "http://bitscope.com/download/files/bitscope-dso_2.8.FE22H_amd64.deb";
+            sha256 = "0fc6crfkprj78dxxhvhbn1dx1db5chm0cpwlqpqv8sz6whp12mcj";
+          }
+        else if stdenv.system == "i686-linux" then
+          fetchurl {
+            url = "http://bitscope.com/download/files/bitscope-dso_2.8.FE22H_i386.deb";
+            sha256 = "0d338g21rzknwgn5wannvkyy9aq37vlfqkppgjv3bkjqkxcyvv7a";
+          }
+        else throw "no install instructions for ${stdenv.system}";
     
       buildInputs = [ dpkg ];
     
