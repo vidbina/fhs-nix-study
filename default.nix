@@ -4,8 +4,8 @@ stdenv.mkDerivation rec {
   name = "bitscope-dso-dev";
   buildInputs = [
     (stdenv.mkDerivation rec {
-      name = "bitscope-dso-${version}";
-      version = "2.8.0";
+      name = "bitscope-dso_${version}";
+      version = "2.8.FE22H";
     
       src = fetchurl {
         url = "http://bitscope.com/download/files/bitscope-dso_2.8.FE22H_i386.deb";
