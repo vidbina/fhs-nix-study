@@ -1,4 +1,4 @@
-# Bitscope on Nix (WIP)
+# FHS and Nix
 
 Learnings:
 
@@ -44,9 +44,9 @@ set -x
 genericBuild
 ```
 
-keeping in mind that the `genericBuild` wreaks some havoc on the local
-directory which makes it sensible to consider changing directories into
-`temp-out` before calling `genericBuild` :wink:.
+which is demonstrated in the asciicinema screencast below.
+
+[![asciicast](https://asciinema.org/a/WrIEdcmrxY4dbCgf5R2e1rSMm.png)](https://asciinema.org/a/WrIEdcmrxY4dbCgf5R2e1rSMm)
 
 Running a nix-repl on the expression by running `nix-repl example.nix` drops us
 into a REPL in which we could build the derrivation by running
