@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, dpkg, buildFHSUserEnv, makeWrapper, gdk_pixbuf, libX11, writeScriptBin }:
+{ stdenv, fetchurl, buildFHSUserEnv, makeWrapper, writeScriptBin, pkgs }:
 
 let
   tools = {
@@ -20,7 +20,7 @@ let
         else throw "no install instructions for ${stdenv.system}";
 
         buildInputs = [
-          dpkg
+          pkgs.dpkg
           makeWrapper
         ];
 
@@ -44,11 +44,18 @@ let
         ls -la $out
         #patchelf --set-interpreter "$(cat $NIX_CC/nix-support/dynamic-linker)" "$out/bin/bitscope-dso"
         #patchelf --set-interpreter "$(cat $NIX_CC/nix-support/dynamic-linker)" "$out/bin/start-bitscope-dso"
-        wrapProgram $out/bin/bitscope-dso --prefix LD_LIBRARY_PATH : "${stdenv.lib.makeLibraryPath [
-          libX11
-          gdk_pixbuf
-        ]}"
+        wrapProgram $out/bin/bitscope-dso --prefix LD_LIBRARY_PATH : "${stdenv.lib.makeLibraryPath libPaths}"
       '';
+
+      libPaths = with pkgs; [
+        atk
+        cairo
+        gdk_pixbuf
+        glib
+        gtk2-x11
+        pango
+        xorg.libX11
+      ];
 
       postInstall = ''
       '';
@@ -60,8 +67,7 @@ let
 in stdenv.mkDerivation rec {
   name = "bitscope-sh";
 
-  #inherit tools;
-
+  #testPkgs = pkgs;
   buildInputs = [
     (writeScriptBin "bitscope-dso" ''
       ${fhsEnv}/bin/bitscope ${tools.dso}/bin/bitscope-dso
