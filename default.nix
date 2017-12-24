@@ -67,13 +67,14 @@ let
 in stdenv.mkDerivation rec {
   name = "bitscope-sh";
 
-  #testPkgs = pkgs;
+  fhsEnvBin = "${fhsEnv}/bin/bitscope";
+
   buildInputs = [
     (writeScriptBin "bitscope-dso" ''
-      ${fhsEnv}/bin/bitscope ${tools.dso}/bin/bitscope-dso
+      ${fhsEnvBin} ${tools.dso}/bin/bitscope-dso
     '')
     (writeScriptBin "start-bitscope-dso" ''
-      ${fhsEnv}/bin/bitscope ${tools.dso}/bin/start-bitscope-dso
+      ${fhsEnvBin} ${tools.dso}/bin/start-bitscope-dso
     '')
   ];
 
