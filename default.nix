@@ -1,11 +1,40 @@
 { stdenv, fetchurl, buildFHSUserEnv, makeWrapper, writeScriptBin, pkgs }:
 
 let
-  tools = {
-    dso = (stdenv.mkDerivation rec {
-      name = "bitscope-dso_${version}";
-      version = "2.8.FE22H";
+  mkBitscopeTool = args: stdenv.mkDerivation (args // rec {
+    name = "${args.toolName}_${args.version}";
 
+    buildInputs = with args; [
+      pkgs.dpkg
+      makeWrapper
+    ];
+
+    unpackPhase = ''
+      dpkg-deb -x ${args.src} ./
+    '';
+
+    dontBuild = true;
+
+    installPhase = with args; ''
+      mkdir -p "$out/bin"
+      cp -a usr/* "$out/"
+      wrapProgram $out/bin/bitscope-dso --prefix LD_LIBRARY_PATH : "${stdenv.lib.makeLibraryPath libPaths}"
+    '';
+
+    libPaths = with args; with pkgs; [
+      atk
+      cairo
+      gdk_pixbuf
+      glib
+      gtk2-x11
+      pango
+      xorg.libX11
+    ];
+  });
+  tools = {
+    dso = (mkBitscopeTool rec {
+      toolName = "bitscope-dso";
+      version = "2.8.FE22H";
       src =
         if stdenv.system == "x86_64-linux" then
           fetchurl {
@@ -18,47 +47,6 @@ let
             sha256 = "0d338g21rzknwgn5wannvkyy9aq37vlfqkppgjv3bkjqkxcyvv7a";
           }
         else throw "no install instructions for ${stdenv.system}";
-
-        buildInputs = [
-          pkgs.dpkg
-          makeWrapper
-        ];
-
-      #phases = [ "unpackPhase" "buildPhase" "installPhase" ];
-
-      unpackPhase = ''
-        dpkg-deb -x ${src} ./
-      '';
-
-      dontBuild = true;
-
-    #  buildPhase = ''
-    #    touch rm-build
-    #  '';
-
-      installPhase = ''
-        ls -la .
-        mkdir -p "$out/bin"
-        cp -a usr/* "$out/"
-        echo "/////////////"
-        ls -la $out
-        #patchelf --set-interpreter "$(cat $NIX_CC/nix-support/dynamic-linker)" "$out/bin/bitscope-dso"
-        #patchelf --set-interpreter "$(cat $NIX_CC/nix-support/dynamic-linker)" "$out/bin/start-bitscope-dso"
-        wrapProgram $out/bin/bitscope-dso --prefix LD_LIBRARY_PATH : "${stdenv.lib.makeLibraryPath libPaths}"
-      '';
-
-      libPaths = with pkgs; [
-        atk
-        cairo
-        gdk_pixbuf
-        glib
-        gtk2-x11
-        pango
-        xorg.libX11
-      ];
-
-      postInstall = ''
-      '';
     });
   };
   fhsEnv = buildFHSUserEnv rec {
