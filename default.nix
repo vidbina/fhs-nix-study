@@ -45,11 +45,10 @@ let
   mkBitscope = args:
     let
       pkg = mkBitscopeTool args;
-      mkFHSBin = name: pkgs.writeScriptBin name ''
-        #!${stdenv.shell}
-        ${fhsEnvBin} ${pkg}/bin/${name} $@
-      '';
-    in map mkFHSBin args.bins;
+    in buildFHSUserEnv {
+      name = args.toolName;
+      runScript = "${pkg.outPath}/bin/${args.toolName}";
+    };
 
   bitscope-dso = mkBitscope rec {
     name = "${toolName}_${version}";
