@@ -1,37 +1,30 @@
 { stdenv, fetchurl, buildFHSUserEnv, makeWrapper, writeScriptBin, pkgs }:
 
 let
-  # helpers
   wrapBinary = libPaths: binaryName: ''
     wrapProgram "$out/bin/${binaryName}" \
       --prefix LD_LIBRARY_PATH : "${stdenv.lib.makeLibraryPath libPaths}"
   '';
-  fhsEnvBin = let
-    fhsEnv = buildFHSUserEnv rec {
-    name = "bitscope";
-  }; in "${fhsEnv}/bin/bitscope";
 
-  mkBitscopeTool = args: stdenv.mkDerivation (args // rec {
+  mkBitscopeTool = overrides: stdenv.mkDerivation (rec {
     buildInputs = with pkgs; [
       dpkg
       makeWrapper
     ];
 
     unpackPhase = ''
-      dpkg-deb -x ${args.src} ./
+      dpkg-deb -x ${overrides.src} ./
     '';
 
     dontBuild = true;
 
-    installPhase = with args; ''
+    installPhase = with overrides; ''
       mkdir -p "$out/bin"
       cp -a usr/* "$out/"
-      ls $out/bin
-      ${builtins.concatStringsSep "\n" (map (wrapBinary libPaths) args.bins)}
-      echo "\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"
+      ${builtins.concatStringsSep "\n" (map (wrapBinary libPaths) bins)}
     '';
 
-    libPaths = with args; with pkgs; [
+    libPaths = with overrides; with pkgs; [
       atk
       cairo
       gdk_pixbuf
@@ -40,13 +33,21 @@ let
       pango
       xorg.libX11
     ];
-  });
+
+    meta = {
+      homepage = http://bitscope.com/software/;
+      #license = stdenv.lib.licenses.unfree;
+      platforms = [ "i686-linux" "x86_64-linux" ];
+      #maintainers = with stdenv.lib.maintainers; [ "David Asabina <vid@bina.me>" ];
+    };
+  } // overrides);
 
   mkBitscope = args:
     let
       pkg = mkBitscopeTool args;
     in buildFHSUserEnv {
       name = args.toolName;
+      meta = pkg.meta;
       runScript = "${pkg.outPath}/bin/${args.toolName}";
     };
 
