@@ -7,49 +7,52 @@ let
       --prefix LD_LIBRARY_PATH : "${stdenv.lib.makeLibraryPath libPaths}"
   '';
 
-  mkBitscopeTool = overrides: stdenv.mkDerivation (rec {
-    meta = {
-      homepage = http://bitscope.com/software/;
-      #license = stdenv.lib.licenses.unfree;
-      platforms = [ "i686-linux" "x86_64-linux" ];
-      #maintainers = with stdenv.lib.maintainers; [ "David Asabina <vid@bina.me>" ];
-    };
-
-    buildInputs = with pkgs; [
-      dpkg
-      makeWrapper
-    ];
-
-    libs = with pkgs; [
-      atk
-      cairo
-      gdk_pixbuf
-      glib
-      gtk2-x11
-      pango
-      xorg.libX11
-    ];
-
-    dontBuild = true;
-
-    unpackPhase = ''
-      dpkg-deb -x ${overrides.src} ./
-    '';
-
-    installPhase = with overrides; ''
-      mkdir -p "$out/bin"
-      cp -a usr/* "$out/"
-      ${builtins.concatStringsSep "\n" (map (wrapBinary libs) bins)}
-    '';
-  } // overrides);
-
-  mkBitscope = args:
+  mkBitscope = attrs:
     let
-      pkg = mkBitscopeTool args;
+      mkBitscopeTool = overrides: stdenv.mkDerivation (rec {
+        meta = rec {
+          homepage = http://bitscope.com/software/;
+          license = stdenv.lib.licenses.unfree;
+          platforms = [ "i686-linux" "x86_64-linux" ];
+          maintainers = with stdenv.lib.maintainers; [
+            "David Asabina <vid@bina.me>"
+          ];
+        };
+
+        buildInputs = with pkgs; [
+          dpkg
+          makeWrapper
+        ];
+
+        libs = with pkgs; [
+          atk
+          cairo
+          gdk_pixbuf
+          glib
+          gtk2-x11
+          pango
+          xorg.libX11
+        ];
+
+        dontBuild = true;
+
+        unpackPhase = ''
+          dpkg-deb -x ${overrides.src} ./
+        '';
+
+        # installPhase expects bins to be defined in the overrides set
+        # bins is a list of package binary names which need to be wrapped
+        installPhase = with overrides; ''
+          mkdir -p "$out/bin"
+          cp -a usr/* "$out/"
+          ${builtins.concatStringsSep "\n" (map (wrapBinary libs) bins)}
+        '';
+      } // overrides);
+      pkg = mkBitscopeTool attrs;
     in buildFHSUserEnv {
-      name = args.toolName;
+      name = attrs.toolName;
       meta = pkg.meta;
-      runScript = "${pkg.outPath}/bin/${args.toolName}";
+      runScript = "${pkg.outPath}/bin/${attrs.toolName}";
     };
 
   bitscope-dso = mkBitscope rec {
