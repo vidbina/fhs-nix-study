@@ -7,24 +7,19 @@ let
   '';
 
   mkBitscopeTool = overrides: stdenv.mkDerivation (rec {
+    meta = {
+      homepage = http://bitscope.com/software/;
+      #license = stdenv.lib.licenses.unfree;
+      platforms = [ "i686-linux" "x86_64-linux" ];
+      #maintainers = with stdenv.lib.maintainers; [ "David Asabina <vid@bina.me>" ];
+    };
+
     buildInputs = with pkgs; [
       dpkg
       makeWrapper
     ];
 
-    unpackPhase = ''
-      dpkg-deb -x ${overrides.src} ./
-    '';
-
-    dontBuild = true;
-
-    installPhase = with overrides; ''
-      mkdir -p "$out/bin"
-      cp -a usr/* "$out/"
-      ${builtins.concatStringsSep "\n" (map (wrapBinary libPaths) bins)}
-    '';
-
-    libPaths = with overrides; with pkgs; [
+    libs = with pkgs; [
       atk
       cairo
       gdk_pixbuf
@@ -34,12 +29,17 @@ let
       xorg.libX11
     ];
 
-    meta = {
-      homepage = http://bitscope.com/software/;
-      #license = stdenv.lib.licenses.unfree;
-      platforms = [ "i686-linux" "x86_64-linux" ];
-      #maintainers = with stdenv.lib.maintainers; [ "David Asabina <vid@bina.me>" ];
-    };
+    dontBuild = true;
+
+    unpackPhase = ''
+      dpkg-deb -x ${overrides.src} ./
+    '';
+
+    installPhase = with overrides; ''
+      mkdir -p "$out/bin"
+      cp -a usr/* "$out/"
+      ${builtins.concatStringsSep "\n" (map (wrapBinary libs) bins)}
+    '';
   } // overrides);
 
   mkBitscope = args:
