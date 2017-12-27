@@ -1,5 +1,6 @@
 { stdenv, fetchurl, buildFHSUserEnv, makeWrapper, writeScriptBin, pkgs }:
 
+# See https://trello.com/b/5ZqfmGUD/bitscope-%E2%9A%9D-software for more info
 let
   wrapBinary = libPaths: binaryName: ''
     wrapProgram "$out/bin/${binaryName}" \
@@ -56,6 +57,11 @@ let
     toolName = "bitscope-dso";
     version = "2.8.FE22H";
 
+    meta = {
+      description = "Test and measurement software for BitScope";
+      homepage = "http://bitscope.com/software/dso/";
+    };
+
     bins = [
       "bitscope-dso" # "start-bitscope-dso"
     ];
@@ -78,6 +84,11 @@ let
     name = "${toolName}_${version}";
     toolName = "bitscope-logic";
     version = "1.2.FC20C";
+
+    meta = {
+      description = "Mixed signal logic timing and serial protocol analysis software for BitScope";
+      home = "http://bitscope.com/software/logic/";
+    };
 
     bins = [
       "bitscope-logic" # "start-bitscope-logic"
@@ -102,6 +113,11 @@ let
     toolName = "bitscope-meter";
     version = "2.0.FK22G";
 
+    meta = {
+      description = "Automated oscilloscope, voltmeter and frequency meter for BitScope";
+      homepage = "http://bitscope.com/software/logic/";
+    };
+
     bins = [
       "bitscope-meter" # "start-bitscope-meter"
     ];
@@ -125,6 +141,11 @@ let
     toolName = "bitscope-chart";
     version = "2.0.FK22M";
 
+    meta = {
+      description = "Multi-channel waveform data acquisition and chart recording application";
+      homepage = "http://bitscope.com/software/chart/";
+    };
+
     bins = [
       "bitscope-chart" # "start-bitscope-chart"
     ];
@@ -144,9 +165,16 @@ let
   };
 
   bitscope-proto = mkBitscope rec {
+    # note: clicking on logo produces error
+    # TApplication.HandleException Executable not found: "http://bitscope.com/blog/DK/?p=DK15A"
     name = "${toolName}_${version}";
     toolName = "bitscope-proto";
     version = "0.9.FG13B";
+
+    meta = {
+      description = "Prototype oscilloscope built using the BitScope Library";
+      homepage = "http://bitscope.com/blog/DK/?p=DK15A";
+    };
 
     bins = [
       "bitscope-proto" # "start-bitscope-proto"
@@ -167,9 +195,13 @@ let
   };
 
   bitscope-console = mkBitscope rec {
+    # https://trello.com/c/sgH6tDdy/58-fb28a-bitscope-console
     name = "${toolName}_${version}";
     toolName = "bitscope-console";
     version = "1.0.FK29A";
+
+    meta.description = "Communications program designed to make it easy to talk to any model BitScope";
+    meta.longDescription = "BitScope Console is a communications program designed to make it easy to talk to any model BitScope via any supported communications link (serial, USB, LAN, Internet etc). Use it to interrogate the BitScope Virtual Machine to help write your own software for BitScope. It uses BitScope Link Library to facilitate communication. Note: you don't need the program to talk to most BitScopes, a simple terminal program will do but Console makes connection easier, uses the probe file specification and supports downstream communications to connected port adapters.";
 
     bins = [
       "bitscope-console" # "start-bitscope-console"
@@ -193,6 +225,11 @@ let
     name = "${toolName}_${version}";
     toolName = "bitscope-display";
     version = "1.0.EC17A";
+
+    meta = {
+      description = "Display diagnostic application for BitScope";
+      homepage = "http://bitscope.com/software/display/";
+    };
 
     bins = [
       "bitscope-display" # "start-bitscope-display"
