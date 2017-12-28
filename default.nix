@@ -219,7 +219,6 @@ let
 in stdenv.mkDerivation rec {
   name = "bitscope-sh";
 
-  dpkg = pkgs.dpkg;
   buildInputs = [
     bitscope-chart
     bitscope-console
