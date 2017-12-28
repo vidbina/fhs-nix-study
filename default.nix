@@ -9,7 +9,7 @@ let
 
   mkBitscope = attrs: let
     mkBitscopeTool = attrs: stdenv.mkDerivation (rec {
-      inherit (attrs) name version src bins;
+      inherit (attrs) name version src;
 
       meta = {
         homepage = http://bitscope.com/software/;
@@ -44,7 +44,7 @@ let
       installPhase = attrs.installPhase or ''
         mkdir -p "$out/bin"
         cp -a usr/* "$out/"
-        ${builtins.concatStringsSep "\n" (map (wrapBinary libs) attrs.bins)}
+        ${(wrapBinary libs) attrs.toolName}
       '';
     });
     pkg = mkBitscopeTool attrs;
@@ -65,10 +65,6 @@ let
       description = "Test and measurement software for BitScope";
       homepage = "http://bitscope.com/software/dso/";
     };
-
-    bins = [
-      "bitscope-dso" # "start-bitscope-dso"
-    ];
 
     src = if stdenv.system == "x86_64-linux" then fetchurl {
       url = "http://bitscope.com/download/files/${name}_amd64.deb";
@@ -91,10 +87,6 @@ let
       home = "http://bitscope.com/software/logic/";
     };
 
-    bins = [
-      "bitscope-logic" # "start-bitscope-logic"
-    ];
-
     src = if stdenv.system == "x86_64-linux" then fetchurl {
       url = "http://bitscope.com/download/files/${name}_amd64.deb";
       sha256 = "0lkb7z9gfkiyxdwh4dq1zxfls8gzdw0na1vrrbgnxfg3klv4xns3";
@@ -115,10 +107,6 @@ let
       description = "Automated oscilloscope, voltmeter and frequency meter for BitScope";
       homepage = "http://bitscope.com/software/logic/";
     };
-
-    bins = [
-      "bitscope-meter" # "start-bitscope-meter"
-    ];
 
     src = if stdenv.system == "x86_64-linux" then fetchurl {
       url = "http://bitscope.com/download/files/${name}_amd64.deb";
@@ -141,10 +129,6 @@ let
       homepage = "http://bitscope.com/software/chart/";
     };
 
-    bins = [
-      "bitscope-chart" # "start-bitscope-chart"
-    ];
-
     src = if stdenv.system == "x86_64-linux" then fetchurl {
       url = "http://bitscope.com/download/files/${name}_amd64.deb";
       sha256 = "08mc82pjamyyyhh15sagsv0sc7yx5v5n54bg60fpj7v41wdwrzxw";
@@ -166,10 +150,6 @@ let
       homepage = "http://bitscope.com/blog/DK/?p=DK15A";
     };
 
-    bins = [
-      "bitscope-proto" # "start-bitscope-proto"
-    ];
-
     src = if stdenv.system == "x86_64-linux" then fetchurl {
       url = "http://bitscope.com/download/files/${name}_amd64.deb";
       sha256 = "1ybjfbh3narn29ll4nci4b7rnxy0hj3wdfm4v8c6pjr8pfvv9spy";
@@ -189,10 +169,6 @@ let
 
     meta.description = "Communications program designed to make it easy to talk to any model BitScope";
     meta.longDescription = "BitScope Console is a communications program designed to make it easy to talk to any model BitScope via any supported communications link (serial, USB, LAN, Internet etc). Use it to interrogate the BitScope Virtual Machine to help write your own software for BitScope. It uses BitScope Link Library to facilitate communication. Note: you don't need the program to talk to most BitScopes, a simple terminal program will do but Console makes connection easier, uses the probe file specification and supports downstream communications to connected port adapters.";
-
-    bins = [
-      "bitscope-console" # "start-bitscope-console"
-    ];
 
     src = if stdenv.system == "x86_64-linux" then fetchurl {
       url = "http://bitscope.com/download/files/${name}_amd64.deb";
@@ -215,10 +191,6 @@ let
       homepage = "http://bitscope.com/software/display/";
     };
 
-    bins = [
-      "bitscope-display" # "start-bitscope-display"
-    ];
-
     src = if stdenv.system == "x86_64-linux" then fetchurl {
       url = "http://bitscope.com/download/files/${name}_amd64.deb";
       sha256 = "05xr5mnka1v3ibcasg74kmj6nlv1nmn3lca1wv77whkq85cmz0s1";
@@ -234,10 +206,6 @@ let
     version = "1.0.FK26A";
   in mkBitscope {
     inherit name toolName version;
-
-    bins = [
-      "bitscope-server" # "start-bitscope-server"
-    ];
 
     src = if stdenv.system == "x86_64-linux" then fetchurl {
       url = "http://bitscope.com/download/files/${name}_amd64.deb";
