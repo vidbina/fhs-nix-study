@@ -8,7 +8,9 @@ let
   '';
 
   mkBitscope = attrs: let
-    mkBitscopeTool = overrides: stdenv.mkDerivation (rec {
+    mkBitscopeTool = attrs: stdenv.mkDerivation (rec {
+      inherit (attrs) name version src bins;
+
       meta = {
         homepage = http://bitscope.com/software/;
         license = stdenv.lib.licenses.unfree;
@@ -16,14 +18,14 @@ let
         maintainers = with stdenv.lib.maintainers; [
           "David Asabina <vid@bina.me>"
         ];
-      };
+      } // (attrs.meta or {});
 
       buildInputs = with pkgs; [
         dpkg
         makeWrapper
       ];
 
-      libs = with pkgs; [
+      libs = attrs.libs or (with pkgs; [
         atk
         cairo
         gdk_pixbuf
@@ -31,22 +33,20 @@ let
         gtk2-x11
         pango
         xorg.libX11
-      ];
+      ]);
 
       dontBuild = true;
 
-      unpackPhase = ''
-        dpkg-deb -x ${overrides.src} ./
+      unpackPhase = attrs.unpackPhase or ''
+        dpkg-deb -x ${attrs.src} ./
       '';
 
-      # installPhase expects bins to be defined in the overrides set
-      # bins is a list of package binary names which need to be wrapped
-      installPhase = ''
+      installPhase = attrs.installPhase or ''
         mkdir -p "$out/bin"
         cp -a usr/* "$out/"
-        ${builtins.concatStringsSep "\n" (map (wrapBinary libs) overrides.bins)}
+        ${builtins.concatStringsSep "\n" (map (wrapBinary libs) attrs.bins)}
       '';
-    } // overrides);
+    });
     pkg = mkBitscopeTool attrs;
   in buildFHSUserEnv {
     name = attrs.toolName;
